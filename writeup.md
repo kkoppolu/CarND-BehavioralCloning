@@ -175,3 +175,6 @@ Validation samples: 13399 (30%)
 A python generator was used for memory efficiency. At at the begining of every epoch, the data is shuffled at random and batches of the desired size are yielded.
 
 I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The early stopping callback of keras was used to stop training once the loss stops to reduce by a magnitude of `1e-4`. I used an adam optimizer so that manually training the learning rate wasn't necessary.
+
+## Notes
+Due to the hardware limitations of my laptop, I could only run the simulator at 4 mph. Any faster and the car covers non-trivial distance before the next command is processed.
