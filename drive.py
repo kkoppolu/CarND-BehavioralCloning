@@ -62,6 +62,7 @@ def telemetry(sid, data):
         imgString = data["image"]
         image = Image.open(BytesIO(base64.b64decode(imgString)))
         image_array = np.asarray(image, dtype=np.float32).copy()
+        image_array = image_array[:,:,::-1]  # this line converts image from RGB to BGR
         num_rows = image_array.shape[0]
         image_array = image_array[50:(num_rows - 20), :, :]
         image_array /= 255.0
