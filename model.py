@@ -5,7 +5,7 @@
 
 # ## Utilities
 
-# In[1]:
+# In[2]:
 
 import csv
 from os.path import isfile
@@ -127,7 +127,7 @@ def get_train_validation_data():
 
 # ## Generator
 
-# In[2]:
+# In[3]:
 
 from sklearn.utils import shuffle
 import numpy as np
@@ -225,7 +225,7 @@ def sample_generator(samples, batch_size, target_width=224, target_height=64):
 
 # ## Load training and validatiom data
 
-# In[3]:
+# In[4]:
 
 train_data, val_data = get_train_validation_data()
 train_sample_size = len(train_data)
@@ -238,16 +238,17 @@ print ("Validation samples: {}".format(val_sample_size))
 
 # ## VGG 19
 
-# In[4]:
+# In[ ]:
 
 ### Reference: https://github.com/fchollet/keras/blob/master/keras/applications/vgg19.py
 
 from keras.models import Model
-from keras.layers import Flatten, Dense, Dropout, Activation
+from keras.layers import Flatten, Dense, Dropout, Activation, SpatialDropout2D
 from keras.layers.normalization import BatchNormalization
 from keras.optimizers import Adam
 from keras.applications.vgg19 import VGG19
 from keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras.regularizers import l2
 
 import matplotlib.pyplot as plt
 get_ipython().magic('matplotlib inline')
@@ -262,6 +263,7 @@ for layer in base_model.layers:
 
 # add dense layers to the end (feature extraction)
 x = base_model.get_layer('block5_pool').output
+x = SpatialDropout2D(p=0.5)(x)
 x = Flatten(name='custom_flatten')(x)
 
 x = Dense(512, name='custom_fc1')(x)
@@ -270,13 +272,13 @@ x = Activation('relu')(x)
 
 x = Dropout(0.5)(x)
 
-x = Dense(64, name='custom_fc2')(x)
+x = Dense(64, name='custom_fc2', W_regularizer=l2(0.01))(x)
 x = BatchNormalization()(x)
 x = Activation('relu')(x)
 
 x = Dropout(0.2)(x)
 
-x = Dense(10, name='custom_fc3')(x)
+x = Dense(10, name='custom_fc3', W_regularizer=l2(0.01))(x)
 x = BatchNormalization()(x)
 x = Activation('relu')(x)
 
@@ -316,7 +318,7 @@ plt.show()
 
 # ## Test sample predictions
 
-# In[5]:
+# In[ ]:
 
 from keras.models import load_model
 import random
@@ -346,15 +348,17 @@ for y in y_a:
 
 # ## Model Visualization
 
-# In[11]:
+# In[7]:
 
 from IPython.display import SVG
 from keras.utils.visualize_util import model_to_dot
+from keras.models import load_model
 
+model = load_model('model-06-0.0178.h5')
 SVG(model_to_dot(model).create(prog='dot', format='svg'))
 
 
-# In[12]:
+# In[8]:
 
 from keras.utils.visualize_util import plot
 plot(model, to_file='model.png')

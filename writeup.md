@@ -53,12 +53,17 @@ My model builds on the well-known VGG19 network used for image recognition. The 
 The non-linear activation function used is RELU. Batch normalization is used such that the variance of the non-linear layers is equal to the variance of the input.
 
 The model accepts 
-- images of size `224 X 64`
+- images of size `224 X 64 X 3`
+- The channel format is `BGR`
 - The data needs to be normalized and zero-centered before inputting to the model.
+
+Since VGG19 from keras is re-used, the data pre-processing is done outside of the model instead of within with the help of lambda layers.
 
 #### 2. Attempts to reduce overfitting in the model
 
-The model contains dropout layers in order to reduce overfitting. 
+* The model contains dropout layers in order to reduce overfitting. 
+* 2D spatial dropout is used on the output from convolutional layers since dropping entire 2D feature maps instead of individual elements is found to be more effective when the pixels within the feature maps have strong correlation. (Reference: [Efficient Object Localization Using Convolutional Networks](https://arxiv.org/abs/1411.4280)).
+* L2 weight regularization is used in fully connected layers.
 The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
 
 #### 3. Model parameter tuning
@@ -115,8 +120,9 @@ Here is the model summary:
 | block5_conv2 (Convolution2D) |  (None, 4, 14, 512)   | 2359808   |  block5_conv1[0][0]         |      
 | block5_conv3 (Convolution2D) |  (None, 4, 14, 512)   | 2359808   |  block5_conv2[0][0]         |      
 | block5_conv4 (Convolution2D) |  (None, 4, 14, 512)   | 2359808   |  block5_conv3[0][0]         |      
-| block5_pool (MaxPooling2D)   |  (None, 2, 7, 512)    | 0         |  block5_conv4[0][0]         |      
-| custom_flatten (Flatten)     |  (None, 7168)         | 0         |  block5_pool[0][0]          |      
+| block5_pool (MaxPooling2D)   |  (None, 2, 7, 512)    | 0         |  block5_conv4[0][0]         | 
+| spatialdropout2d_1           |  (None, 2, 7, 512)    | 0         |  block5_pool[0][0]          |
+| custom_flatten (Flatten)     |  (None, 7168)         | 0         |  spatialdropout2d_1[0][0]   |      
 | custom_fc1 (Dense)           |  (None, 512)          | 3670528   |  custom_flatten[0][0]       |     
 | batchnormalization_1         |  (None, 512)          | 2048      |  custom_fc1[0][0]           |      
 | activation_1 (Activation)    |  (None, 512)          | 0         |  batchnormalization_1[0][0] |     
