@@ -53,8 +53,11 @@ My model builds on the well-known VGG19 network used for image recognition. The 
 The non-linear activation function used is RELU. Batch normalization is used such that the variance of the non-linear layers is equal to the variance of the input.
 
 The model accepts 
-- images of size `224 X 64`
+- images of size `224 X 64 X 3`
+- The channel format is `BGR`
 - The data needs to be normalized and zero-centered before inputting to the model.
+
+Since VGG19 from keras is re-used, the data pre-processing is done outside of the model instead of within with the help of lambda layers.
 
 #### 2. Attempts to reduce overfitting in the model
 
